@@ -2,6 +2,10 @@
 
 project(kaanh)
 
+if(WIN32)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif(WIN32)
+
 # aris use c++ 17 standard
 set(CMAKE_CXX_STANDARD 17)
 
@@ -22,16 +26,16 @@ if(WIN32)
 	add_definitions(-DWIN32 -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DNON_MATLAB_PARSING)
 endif(WIN32)
 if(UNIX)
-	add_definitions(-DUNIX)
+	add_definitions(-DUNIX -DNON_MATLAB_PARSING)
 endif(UNIX)
 
-#add_library(kaanh_lib STATIC src/kaanh.cpp   src/kaanh.h)
+#add_library(kaanh_lib STATIC src/kaanh.cpp   src/kaanh.hpp src/basicsystem.hpp src/basicsystem.cpp)
 
 
 # user program started...
-#set(SOURCE_FILES src/main.cpp)
-#add_executable(kaanh ${SOURCE_FILES})
-add_executable(kaanh src/main.cpp)
+set(SOURCE_FILES src/main.cpp  src/basicsystem.hpp src/basicsystem.cpp)
+add_executable(kaanh ${SOURCE_FILES})
+
 #target_link_libraries(kaanh kaanh_lib)
 
 
