@@ -12,8 +12,8 @@ using namespace aris::system;
 int main()
 {
 	auto& cs = aris::system::ControlSystem::instance();
-	cs.resetController(createVrepController().release());
-	cs.resetNrtControllerPool(createNrtControllerPool().release());
+    cs.resetController(createEcatController().release());
+    //cs.resetNrtControllerPool(createNrtControllerPool().release());
 	cs.resetSensorRoot(new aris::sensor::SensorRoot);
 	cs.resetModelPool(createModelPool().release());
 	cs.resetIOModelPool(createIOModelPool().release());
@@ -25,7 +25,7 @@ int main()
 
 	cs.interfacePool().add<aris::system::StateRtInterface>("StateSock", "5867", core::Socket::TCP);
 	cs.interfacePool().add<aris::system::WebInterface>("ErrorSock", "5868", core::Socket::TCP);
-	cs.interfacePool().add<aris::system::ComInterface>("COM", 1, 9600);
+    //cs.interfacePool().add<aris::system::ComInterface>("COM", 1, 9600);
 
 
 

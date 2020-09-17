@@ -40,7 +40,7 @@ add_executable(kaanh ${SOURCE_FILES})
 
 
 if(UNIX)
-	target_link_libraries(kaanh ${aris_LIBRARIES} atomic)
+	target_link_libraries(kaanh ${aris_LIBRARIES} atomic rt)
 endif(UNIX)
 IF(WIN32)
 	target_link_libraries(kaanh ${aris_LIBRARIES})
