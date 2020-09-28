@@ -2,7 +2,7 @@
 #include <aris.hpp>
 #include <atomic>
 #include "basicsystem.hpp"
-
+#include </usr/include/sys/mman.h>
 using namespace std;
 using namespace core;
 using namespace aris::controller;
@@ -12,6 +12,7 @@ using namespace aris::system;
 int main()
 {
 	auto& cs = aris::system::ControlSystem::instance();
+
     cs.resetController(createEcatController().release());
     //cs.resetNrtControllerPool(createNrtControllerPool().release());
 	cs.resetSensorRoot(new aris::sensor::SensorRoot);
@@ -44,8 +45,8 @@ int main()
 
 	auto& cal = cs.model().calculator();
 	createUserDataType(cal);
-	//cs.start();
-	cs.setErrorinfoVer(1);
+    cs.start();
+    cs.setErrorinfoVer(0);
 
 #ifdef WIN32
 	for (auto& m : cs.controller().motionPool())

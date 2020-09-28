@@ -253,119 +253,157 @@ namespace aris::system
 {
 		std::unique_ptr<aris::controller::Controller> controller(new aris::controller::EthercatController);/*创建std::unique_ptr实例*/
 		controller->slavePool().clear();	//清除slavePool中的元素，后面重新添加
-		for (Size i = 0; i < 6; ++i)
-		{
-#ifdef WIN32
-			double pos_offset[6]
-			{
-				0,0,0,0,0,0
-			};
-#endif
+        for (Size i = 0; i < 1; ++i)
+        {
 #ifdef UNIX
-			double pos_offset[6]
-			{
-				0.0345045068966465,   0.151295566371175,   -0.181133422007823,   0.00569660673541914,   0.0119907348546894,   0.0908806917782888
-			};
+            double pos_offset[6]
+            {
+               1.4327,   2.41069874505508,   0.762016940604939,   4.69692333813102,   0.0360485485152105,   1.43257027673246
+            };
 #endif
-			double pos_factor[6]
-			{
-				131072.0 * 129.6 / 2 / PI, -131072.0 * 100 / 2 / PI, 131072.0 * 101 / 2 / PI, 131072.0 * 81.6 / 2 / PI, 131072.0 * 81 / 2 / PI, 131072.0 * 51 / 2 / PI
-			};
-			double max_pos[6]
-			{
-				170.0 / 360 * 2 * PI, 40.0 / 360 * 2 * PI,	150.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI, 125.0 / 360 * 2 * PI, 360.0 / 360 * 2 * PI
-			};
-			double min_pos[6]
-			{
-				-170.0 / 360 * 2 * PI, -165.0 / 360 * 2 * PI, -125.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI, -125.0 / 360 * 2 * PI, -360.0 / 360 * 2 * PI
-			};
-			double max_vel[6]
-			{
-				230.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 375.0 / 360 * 2 * PI, 600.0 / 360 * 2 * PI
-			};
-			double max_acc[6]
-			{
-				1150.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1875.0 / 360 * 2 * PI, 3000.0 / 360 * 2 * PI
-			};
+            double pos_factor[6]
+            {
+                1048576.0 / 2 / PI, 1048576.0 / 2 / PI, 1048576.0 / 2 / PI, -1048576.0 / 2 / PI, -524288.0 / 2 / PI, 524288.0 / 2 / PI
+            };
+            double max_pos[6]
+            {
+                180.0 / 360 * 2 * PI, 120.0 / 360 * 2 * PI,	60.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI, 120.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI
+            };
+            double min_pos[6]
+            {
+                -180.0 / 360 * 2 * PI, -120.0 / 360 * 2 * PI, -240.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI, -120.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI
+            };
+            double max_vel[6]
+            {
+                0.4, 0.4, 0.4, 0.4, 0.6, 0.6
+            };
+            double max_acc[6]
+            {
+//                3.3, 3.3*2, 3.3, 3.3, 7.5, 7.5
+//                10, 10, 10, 10, 25, 25
+                  20,20,20,20,50,50
+            };
 
-			std::string xml_str =
-				"<EthercatMotor phy_id=\"" + std::to_string(i) + "\" product_code=\"0x01\""
-				" vendor_id=\"0x00000748\" revision_num=\"0x0002\" dc_assign_activate=\"0x0300\""
-				" min_pos=\"" + std::to_string(min_pos[i]) + "\" max_pos=\"" + std::to_string(max_pos[i]) + "\" max_vel=\"" + std::to_string(max_vel[i]) + "\" min_vel=\"" + std::to_string(-max_vel[i]) + "\""
-				" max_acc=\"" + std::to_string(max_acc[i]) + "\" min_acc=\"" + std::to_string(-max_acc[i]) + "\" max_pos_following_error=\"0.1\" max_vel_following_error=\"0.5\""
-				" home_pos=\"0\" pos_factor=\"" + std::to_string(pos_factor[i]) + "\" pos_offset=\"" + std::to_string(pos_offset[i]) + "\">"
-				"	<SyncManagerPoolObject>"
-				"		<SyncManager is_tx=\"false\"/>"
-				"		<SyncManager is_tx=\"true\"/>"
-				"		<SyncManager is_tx=\"false\">"
-				"			<Pdo index=\"0x1600\" is_tx=\"false\">"
-				"				<PdoEntry name=\"control_word\" index=\"0x6040\" subindex=\"0x00\" size=\"16\"/>"
-				"				<PdoEntry name=\"target_pos\" index=\"0x607A\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"target_vel\" index=\"0x60FF\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"target_tor\" index=\"0x6071\" subindex=\"0x00\" size=\"16\"/>"
-				"				<PdoEntry name=\"mode_of_operation\" index=\"0x6060\" subindex=\"0x00\" size=\"8\"/>"
-				"				<PdoEntry name=\"dummy_byte\" index=\"0x5FFE\" subindex=\"0x00\" size=\"8\"/>"
-				"				<PdoEntry name=\"touch_probe_function\" index=\"0x60B8\" subindex=\"0x00\" size=\"16\"/>"
-				"				<PdoEntry name=\"pos_offset\" index=\"0x60B0\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"offset_vel\" index=\"0x60B1\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"tor_offset\" index=\"0x60B2\" subindex=\"0x00\" size=\"16\"/>"
-				"			</Pdo>"
-				"		</SyncManager>"
-				"		<SyncManager is_tx=\"true\">"
-				"			<Pdo index=\"0x1A00\" is_tx=\"true\">"
-				"				<PdoEntry name=\"status_word\" index=\"0x6041\" subindex=\"0x00\" size=\"16\"/>"
-				"				<PdoEntry name=\"pos_actual_value\" index=\"0x6064\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"vel_actual_value\" index=\"0x606c\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"cur_actual_value\" index=\"0x6077\" subindex=\"0x00\" size=\"16\"/>"
-				"				<PdoEntry name=\"mode_of_display\" index=\"0x6061\" subindex=\"0x00\" size=\"8\"/>"
-				"				<PdoEntry name=\"dummy_byte\" index=\"0x5FFF\" subindex=\"0x00\" size=\"8\"/>"
-				"				<PdoEntry name=\"following_error\" index=\"0x60F4\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"digital_inputs\" index=\"0x60FD\" subindex=\"0x00\" size=\"32\"/>"
-				"				<PdoEntry name=\"digital_inputs\" index=\"0x60B9\" subindex=\"0x00\" size=\"16\"/>"
-				"				<PdoEntry name=\"digital_inputs\" index=\"0x60BA\" subindex=\"0x00\" size=\"32\"/>"
-				"			</Pdo>"
-				"		</SyncManager>"
-				"	</SyncManagerPoolObject>"
-				"</EthercatMotor>";
+            std::string xml_str =
+                "<EthercatMotor phy_id=\"" + std::to_string(i) + "\" product_code=\"0x201\""
+                " vendor_id=\"0x000022D2\" revision_num=\"0x0a000002\" dc_assign_activate=\"0x0300\""
+                " min_pos=\"" + std::to_string(min_pos[i]) + "\" max_pos=\"" + std::to_string(max_pos[i]) + "\" max_vel=\"" + std::to_string(max_vel[i]) + "\" min_vel=\"" + std::to_string(-max_vel[i]) + "\""
+                " max_acc=\"" + std::to_string(max_acc[i]) + "\" min_acc=\"" + std::to_string(-max_acc[i]) + "\" max_pos_following_error=\"0.1\" max_vel_following_error=\"0.5\""
+                " home_pos=\"0\" pos_factor=\"" + std::to_string(pos_factor[i]) + "\" pos_offset=\"" + std::to_string(pos_offset[i]) + "\">"
+                "	<SyncManagerPoolObject>"
+                "		<SyncManager is_tx=\"false\"/>"
+                "		<SyncManager is_tx=\"true\"/>"
+                "		<SyncManager is_tx=\"false\">"
+                "			<Pdo index=\"0x1600\" is_tx=\"false\">"
+                "				<PdoEntry name=\"control_word\" index=\"0x6040\" subindex=\"0x00\" size=\"16\"/>"
+                "				<PdoEntry name=\"mode_of_operation\" index=\"0x6060\" subindex=\"0x00\" size=\"8\"/>"
+                "				<PdoEntry name=\"target_pos\" index=\"0x607A\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"target_vel\" index=\"0x60FF\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"targer_tor\" index=\"0x6071\" subindex=\"0x00\" size=\"16\"/>"
+                "				<PdoEntry name=\"offset_vel\" index=\"0x60B1\" subindex=\"0x00\" size=\"32\"/>"
+                "			</Pdo>"
+                "		</SyncManager>"
+                "		<SyncManager is_tx=\"true\">"
+                "			<Pdo index=\"0x1A00\" is_tx=\"true\">"
+                "				<PdoEntry name=\"status_word\" index=\"0x6041\" subindex=\"0x00\" size=\"16\"/>"
+                "				<PdoEntry name=\"mode_of_display\" index=\"0x6061\" subindex=\"0x00\" size=\"8\"/>"
+                "				<PdoEntry name=\"pos_actual_value\" index=\"0x6064\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"vel_actual_value\" index=\"0x606c\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"cur_actual_value\" index=\"0x6077\" subindex=\"0x00\" size=\"16\"/>"
+                "			</Pdo>"
+                "		</SyncManager>"
+                "	</SyncManagerPoolObject>"
+                "</EthercatMotor>";
+            controller->slavePool().add<aris::controller::EthercatMotor>().loadXmlStr(xml_str);
+        }
 
-			controller->slavePool().add<aris::controller::EthercatMotor>().loadXmlStr(xml_str);
-		}
+#ifdef UNIX
+        dynamic_cast<aris::controller::EthercatController*>(controller.get())->scanInfoForCurrentSlaves();
 
+        dynamic_cast<aris::controller::EthercatController*>(controller.get())->scanPdoForCurrentSlaves();
+#endif
+        std::cout << controller->xmlString() << std::endl;
 
-		//ATI force sensor//
-		std::string xml_strDI =
-			"<EthercatDI phy_id=\"6\" product_code=\"0x26483053\""
-			" vendor_id=\"0x00000732\" revision_num=\"0x00000001\" dc_assign_activate=\"0x00\">"
-			"	<SyncManagerPoolObject>"
-			"		<SyncManager is_tx=\"true\">"
-			"			<Pdo index=\"0x1A00\" is_tx=\"true\">"
-			"				<PdoEntry name=\"Sample_Counter\" index=\"0x6020\" subindex=\"0x00\" size=\"8\"/>"
-			"			</Pdo>"
-			"		</SyncManager>"
-			"	</SyncManagerPoolObject>"
-			"</EthercatDI>";
-
-		controller->slavePool().add<aris::controller::EthercatDI>().loadXmlStr(xml_strDI);
-
-
-		std::string xml_strDO =
-			"<EthercatDO phy_id=\"7\" product_code=\"0x26483053\""
-			" vendor_id=\"0x00000732\" revision_num=\"0x00000001\" dc_assign_activate=\"0x00\">"
-			"	<SyncManagerPoolObject>"
-			"		<SyncManager is_tx=\"true\">"
-			"			<Pdo index=\"0x1A00\" is_tx=\"true\">"
-			"				<PdoEntry name=\"Sample_Counter\" index=\"0x6020\" subindex=\"0x00\" size=\"8\"/>"
-			"			</Pdo>"
-			"		</SyncManager>"
-			"	</SyncManagerPoolObject>"
-			"</EthercatDO>";
-
-		controller->slavePool().add<aris::controller::EthercatDO>().loadXmlStr(xml_strDO);
 
 
 		return controller;
 }
-	/*auto createComController(const NumList* numList,Size nrt_id, const std::string& name, UINT  portNo, UINT  baud, char  parity, UINT  databits, \
+    auto createZeroErrEcatController()->std::unique_ptr<aris::controller::Controller>	/*函数返回的是一个类指针，指针指向Controller,controller的类型是智能指针std::unique_ptr*/
+{
+        std::unique_ptr<aris::controller::Controller> controller(new aris::controller::EthercatController);/*创建std::unique_ptr实例*/
+        controller->slavePool().clear();	//清除slavePool中的元素，后面重新添加
+        for (Size i = 0; i < 1; ++i)
+        {
+#ifdef UNIX
+            double pos_offset[6]
+            {
+               1.4327,   2.41069874505508,   0.762016940604939,   4.69692333813102,   0.0360485485152105,   1.43257027673246
+            };
+#endif
+            double pos_factor[6]
+            {
+                1048576.0 / 2 / PI, 1048576.0 / 2 / PI, 1048576.0 / 2 / PI, -1048576.0 / 2 / PI, -524288.0 / 2 / PI, 524288.0 / 2 / PI
+            };
+            double max_pos[6]
+            {
+                180.0 / 360 * 2 * PI, 120.0 / 360 * 2 * PI,	60.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI, 120.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI
+            };
+            double min_pos[6]
+            {
+                -180.0 / 360 * 2 * PI, -120.0 / 360 * 2 * PI, -240.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI, -120.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI
+            };
+            double max_vel[6]
+            {
+                0.4, 0.4, 0.4, 0.4, 0.6, 0.6
+            };
+            double max_acc[6]
+            {
+//                3.3, 3.3*2, 3.3, 3.3, 7.5, 7.5
+//                10, 10, 10, 10, 25, 25
+                  20,20,20,20,50,50
+            };
+
+            std::string xml_str =
+                "<EthercatMotor phy_id=\"" + std::to_string(i) + "\" product_code=\"0x29252\""
+                " vendor_id=\"0x5A65726F\" revision_num=\"0x00000001\" dc_assign_activate=\"0x0300\""
+                " min_pos=\"" + std::to_string(min_pos[i]) + "\" max_pos=\"" + std::to_string(max_pos[i]) + "\" max_vel=\"" + std::to_string(max_vel[i]) + "\" min_vel=\"" + std::to_string(-max_vel[i]) + "\""
+                " max_acc=\"" + std::to_string(max_acc[i]) + "\" min_acc=\"" + std::to_string(-max_acc[i]) + "\" max_pos_following_error=\"0.1\" max_vel_following_error=\"0.5\""
+                " home_pos=\"0\" pos_factor=\"" + std::to_string(pos_factor[i]) + "\" pos_offset=\"" + std::to_string(pos_offset[i]) + "\">"
+                "	<SyncManagerPoolObject>"
+                "		<SyncManager is_tx=\"false\"/>"
+                "		<SyncManager is_tx=\"true\"/>"
+                "		<SyncManager is_tx=\"false\">"
+                "			<Pdo index=\"0x1600\" is_tx=\"false\">"
+                "               <PdoEntry name=\"target_pos\" index=\"0x607A\" subindex=\"0x00\" size=\"32\"/>"
+                "               <PdoEntry name=\"mode_of_operation\" index=\"0x60FE\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"control_tmp\" index=\"0x6040\" subindex=\"0x00\" size=\"16\"/>"
+                "			</Pdo>"
+                "		</SyncManager>"
+                "		<SyncManager is_tx=\"true\">"
+                "			<Pdo index=\"0x1A00\" is_tx=\"true\">"
+                "				<PdoEntry name=\"pos_actual_value\" index=\"0x6064\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"mode_of_display\" index=\"0x60FD\" subindex=\"0x00\" size=\"32\"/>"
+                "				<PdoEntry name=\"status_word\" index=\"0x6041\" subindex=\"0x00\" size=\"16\"/>"
+                "			</Pdo>"
+                "		</SyncManager>"
+                "	</SyncManagerPoolObject>"
+                "</EthercatMotor>";
+            controller->slavePool().add<aris::controller::EthercatMotor>().loadXmlStr(xml_str);
+        }
+
+#ifdef UNIX
+        dynamic_cast<aris::controller::EthercatController*>(controller.get())->scanInfoForCurrentSlaves();
+
+        dynamic_cast<aris::controller::EthercatController*>(controller.get())->scanPdoForCurrentSlaves();
+#endif
+        std::cout << controller->xmlString() << std::endl;
+
+
+
+        return controller;
+}
+#ifdef WIN32
+    auto createComController(const NumList* numList,Size nrt_id, const std::string& name, UINT  portNo, UINT  baud, char  parity, UINT  databits, \
 		UINT  stopsbits, DWORD dwCommEvents)->std::unique_ptr<aris::controller::NrtController>
 	{
 		static const NumList com_num_list = { 0 };
@@ -468,7 +506,8 @@ namespace aris::system
 
 		return controller;
 
-	}*/
+    }
+#endif
 	auto createSocketController(const NumList* numList,std::string name, std::string ip, std::string port, SocketMaster::TYPE type, Size nrt_id)->std::unique_ptr<aris::controller::NrtController>
 	{
 		static const NumList socket_num_list= { 0 };

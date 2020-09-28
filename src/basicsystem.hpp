@@ -22,7 +22,9 @@ namespace aris::system
 	//*************************´´½¨¿ØÖÆÆ÷***********************//////
 	auto createVrepController()->std::unique_ptr<aris::controller::Controller>;
 	auto createEcatController()->std::unique_ptr<aris::controller::Controller>;
-	/*auto createComController(const NumList* num = nullptr, Size nrt_id=0, const std::string& name = "com_controller", UINT  portNo = 3, UINT  baud = CBR_19200, char  parity = 'N', UINT  databits = 8, \
+    auto createZeroErrEcatController()->std::unique_ptr<aris::controller::Controller>;
+
+    /*auto createComController(const NumList* num = nullptr, Size nrt_id=0, const std::string& name = "com_controller", UINT  portNo = 3, UINT  baud = CBR_19200, char  parity = 'N', UINT  databits = 8, \
 		UINT  stopsbits = 1, DWORD dwCommEvents = EV_RXCHAR)->std::unique_ptr<aris::controller::NrtController>;*/
 	auto createSocketController(const NumList* num = nullptr, std::string name="socket_controller", std::string ip = "", std::string port="", controller::SocketMaster::TYPE type= controller::SocketMaster::TYPE::TCP, Size nrt_id=0)->std::unique_ptr<aris::controller::NrtController>;
 	auto createNrtControllerPool()->std::unique_ptr<core::ObjectPool<aris::controller::NrtController>>;
