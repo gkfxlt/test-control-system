@@ -12,7 +12,7 @@ using namespace codeit::system;
 int main()
 {
 	auto& cs = codeit::system::ControlSystem::instance();
-	cs.resetController(createVrepController().release());
+    cs.resetController(createEcatController().release());
 	cs.resetNrtControllerPool(createNrtControllerPool().release());
 	cs.resetSensorRoot(new codeit::sensor::SensorRoot);
 	cs.resetModelPool(createModelPool().release());
@@ -26,9 +26,10 @@ int main()
 	cs.interfacePool().add<codeit::system::StateRtInterface>("StateSock", "5867", codeit::core::Socket::TCP);
 	cs.interfacePool().add<codeit::system::WebInterface>("ErrorSock", "5868", codeit::core::Socket::TCP);
 
-	codeit::core::SerialPort::ComOptions options = { 1, CBR_9600, 'N',8,1,EV_RXCHAR };
-	cs.interfacePool().add<codeit::system::ComInterface>("COM", options);
-
+#ifdef WIN32
+    codeit::core::SerialPort::ComOptions options = { 1, CBR_9600, 'N',8,1,EV_RXCHAR };
+    cs.interfacePool().add<codeit::system::ComInterface>("COM", options);
+#endif
 	cs.saveXmlFile(std::string("kaanh.xml"));
 	cs.model().saveXmlFile(std::string("model.xml"));
 	cs.model().pointPool().saveXmlFile(std::string("data.xml"));
