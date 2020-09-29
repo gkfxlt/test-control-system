@@ -40,7 +40,7 @@ add_executable(codeit-deploy ${SOURCE_FILES})
 
 
 if(UNIX)
-	target_link_libraries(codeit-deploy ${codeit-deploy_LIBRARIES} atomic rt)
+	target_link_libraries(codeit-deploy ${codeit_LIBRARIES} atomic rt)
 endif(UNIX)
 IF(WIN32)
 	target_link_libraries(codeit-deploy ${codeit_LIBRARIES})
