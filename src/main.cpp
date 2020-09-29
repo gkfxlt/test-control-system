@@ -1,39 +1,37 @@
 ﻿#include <iostream>
-#include <aris.hpp>
+#include <codeit.hpp>
 #include <atomic>
 #include "basicsystem.hpp"
-#include </usr/include/sys/mman.h>
+
 using namespace std;
-using namespace core;
-using namespace aris::controller;
-using namespace aris::model;
-using namespace aris::system;
+using namespace codeit::core;
+using namespace codeit::controller;
+using namespace codeit::model;
+using namespace codeit::system;
 
 int main()
 {
-	auto& cs = aris::system::ControlSystem::instance();
-
-    cs.resetController(createEcatController().release());
-    //cs.resetNrtControllerPool(createNrtControllerPool().release());
-	cs.resetSensorRoot(new aris::sensor::SensorRoot);
+	auto& cs = codeit::system::ControlSystem::instance();
+	cs.resetController(createVrepController().release());
+	cs.resetNrtControllerPool(createNrtControllerPool().release());
+	cs.resetSensorRoot(new codeit::sensor::SensorRoot);
 	cs.resetModelPool(createModelPool().release());
 	cs.resetIOModelPool(createIOModelPool().release());
-	cs.resetCmdRoot(createCmdRoot().release());
+	cs.resetFuncRoot(createFuncRoot().release());
 	cs.resetErrorInfoPool(createErrorInfoPool().release());
 
-	cs.interfacePool().add<aris::system::ProgramWebInterface>("ControlSock", "5866", core::Socket::TCP);
-	//cs.interfacePool().add<aris::cmdtarget::ProInterface>("ControlSock", "5866", core::Socket::WEB);
+	cs.interfacePool().add<codeit::system::WebInterface>("ControlSock", "5866", codeit::core::Socket::TCP);
+	//cs.interfacePool().add<codeit::cmdtarget::ProInterface>("ControlSock", "5866", core::Socket::WEB);
 
-	cs.interfacePool().add<aris::system::StateRtInterface>("StateSock", "5867", core::Socket::TCP);
-	cs.interfacePool().add<aris::system::WebInterface>("ErrorSock", "5868", core::Socket::TCP);
-    //cs.interfacePool().add<aris::system::ComInterface>("COM", 1, 9600);
+	cs.interfacePool().add<codeit::system::StateRtInterface>("StateSock", "5867", codeit::core::Socket::TCP);
+	cs.interfacePool().add<codeit::system::WebInterface>("ErrorSock", "5868", codeit::core::Socket::TCP);
 
-
+	codeit::core::SerialPort::ComOptions options = { 1, CBR_9600, 'N',8,1,EV_RXCHAR };
+	cs.interfacePool().add<codeit::system::ComInterface>("COM", options);
 
 	cs.saveXmlFile(std::string("kaanh.xml"));
 	cs.model().saveXmlFile(std::string("model.xml"));
 	cs.model().pointPool().saveXmlFile(std::string("data.xml"));
-
 
 	cs.loadXmlFile(std::string("kaanh.xml"));
 	cs.model().loadXmlFile(std::string("model.xml"));
@@ -41,23 +39,27 @@ int main()
 
 
 	cs.init();
-	cs.model().variablePool().add<aris::model::MatrixVariable>("fine", core::Matrix(1, 2, 0.0));
+	cs.model().variablePool().add<codeit::model::MatrixVariable>("fine", codeit::core::Matrix(1, 2, 0.0));
 
 	auto& cal = cs.model().calculator();
 	createUserDataType(cal);
-    cs.start();
-    cs.setErrorinfoVer(0);
+	cs.start();
 
+	cs.setErrorinfoVer(0);
 #ifdef WIN32
+	auto sd = cs.controller().motionPool().size();
 	for (auto& m : cs.controller().motionPool())
 	{
-		dynamic_cast<aris::controller::VrepMotor&>(m).setVirtual(true);
+		dynamic_cast<codeit::controller::VrepMotor&>(m).setVirtual(true);
 	}
-
-	for (auto& m : cs.controller().ioPool())
+	for (auto& m : cs.controller().externMotionPool())
 	{
-		dynamic_cast<aris::controller::EthercatIO&>(m).setVirtual(true);
+		dynamic_cast<codeit::controller::VrepExternMotor&>(m).setVirtual(true);
 	}
+	/*for (auto& m : cs.controller().ioPool())
+	{
+		dynamic_cast<codeit::controller::EthercatIO&>(m).setVirtual(true);
+	}*/
 #endif // WIN32
 
 	cs.open();//启动socket
