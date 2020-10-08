@@ -414,111 +414,7 @@ namespace codeit::system
 
         return controller;
 }
-#ifdef WIN32
-	auto createComController(const NumList* numList, const std::string& name, const core::SerialPort::ComOptions& options, Size nrt_id)->std::unique_ptr<codeit::controller::NrtController>
-	{
-		static const NumList com_num_list = { 0 };
-		numList = numList ? numList : &com_num_list;
 
-		std::unique_ptr<codeit::controller::NrtController> controller(new codeit::controller::ComController(name, options, nrt_id));
-
-		int begin_index = 0;
-		for (Size i = 0; i < numList->di_num; ++i)
-		{
-			std::string xml_str =
-				"<ComDI phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\">"
-				"</ComDI>";
-			controller->slavePool().add<codeit::controller::ComDI>().loadXmlStr(xml_str);
-			begin_index++;
-		}
-
-		for (Size i = 0; i < numList->do_num; ++i)
-		{
-			std::string xml_str =
-				"<ComDO phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\">"
-				"</ComDO>";
-			controller->slavePool().add<codeit::controller::ComDO>().loadXmlStr(xml_str);
-			begin_index++;
-		}
-
-		double res[6] = { 0.1,0.2,0.3,0.4,0.5,0.6 };
-		for (Size i = 0; i < numList->ai_num; ++i)
-		{
-			std::string xml_str =
-				"<ComAI phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\" resolution=\"" + std::to_string(res[i]) + "\">"
-				"</ComAI>";
-			controller->slavePool().add<codeit::controller::ComAI>().loadXmlStr(xml_str);
-			begin_index++;
-		}
-		for (Size i = 0; i < numList->ao_num; ++i)
-		{
-			std::string xml_str =
-				"<ComAO phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\" resolution=\"" + std::to_string(res[i]) + "\">"
-				"</ComAO>";
-			controller->slavePool().add<codeit::controller::ComAO>().loadXmlStr(xml_str);
-			begin_index++;
-		}
-
-
-		for (Size i = 0; i < numList->motor_num; ++i)
-		{
-#ifdef WIN32
-			double pos_offset[6]
-			{
-				0,0,0,0,0,0
-			};
-#endif
-#ifdef UNIX
-			double pos_offset[6]
-			{
-				0.0345045068966465,   0.151295566371175,   -0.181133422007823,   0.00569660673541914,   0.0119907348546894,   0.0908806917782888
-			};
-#endif
-			double pos_factor[6]
-			{
-				131072.0 * 129.6 / 2 / PI, -131072.0 * 100 / 2 / PI, 131072.0 * 101 / 2 / PI, 131072.0 * 81.6 / 2 / PI, 131072.0 * 81 / 2 / PI, 131072.0 * 51 / 2 / PI
-			};
-			double max_pos[6]
-			{
-				170.0 / 360 * 2 * PI, 40.0 / 360 * 2 * PI,	150.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI, 125.0 / 360 * 2 * PI, 360.0 / 360 * 2 * PI
-			};
-			double min_pos[6]
-			{
-				-170.0 / 360 * 2 * PI, -165.0 / 360 * 2 * PI, -125.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI, -125.0 / 360 * 2 * PI, -360.0 / 360 * 2 * PI
-			};
-			double max_vel[6]
-			{
-				230.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 375.0 / 360 * 2 * PI, 600.0 / 360 * 2 * PI
-			};
-			double max_acc[6]
-			{
-				1150.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1875.0 / 360 * 2 * PI, 3000.0 / 360 * 2 * PI
-			};
-
-			std::string xml_str =
-				"<ComMotor phy_id=\"" + std::to_string(begin_index) + "\" "
-				" min_pos=\"" + std::to_string(min_pos[i]) + "\" max_pos=\"" + std::to_string(max_pos[i]) + "\" max_vel=\"" + std::to_string(max_vel[i]) + "\" min_vel=\"" + std::to_string(-max_vel[i]) + "\""
-				" max_acc=\"" + std::to_string(max_acc[i]) + "\" min_acc=\"" + std::to_string(-max_acc[i]) + "\" max_pos_following_error=\"0.1\" max_vel_following_error=\"0.5\""
-				" home_pos=\"0\" pos_factor=\"" + std::to_string(pos_factor[i]) + "\" pos_offset=\"" + std::to_string(pos_offset[i]) + "\">"
-				"</ComMotor>";
-
-			controller->slavePool().add<codeit::controller::ComMotor>().loadXmlStr(xml_str);
-			begin_index++;
-		}
-
-		for (Size i = 0; i < numList->subsys_num; ++i)
-		{
-			std::string xml_str =
-				"<ComSubSystem phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\">"
-				"</ComSubSystem>";
-			controller->slavePool().add<codeit::controller::ComSubSystem>().loadXmlStr(xml_str);
-			begin_index++;
-		}
-
-		return controller;
-
-	}
-#endif
 	auto createSocketController(const NumList* numList,std::string name, std::string ip, std::string port, SocketMaster::TYPE type, Size nrt_id)->std::unique_ptr<codeit::controller::NrtController>
 	{
 		static const NumList socket_num_list= { 0 };
@@ -625,7 +521,110 @@ namespace codeit::system
 		return controller;
 
 	}
-	
+	auto createComController(const NumList* numList, const std::string& name, const core::SerialPort::ComOptions& options, Size pack_size, Size nrt_id)->std::unique_ptr<codeit::controller::NrtController>
+	{
+		static const NumList com_num_list = { 0 };
+		numList = numList ? numList : &com_num_list;
+
+		std::unique_ptr<codeit::controller::NrtController> controller(new codeit::controller::ComController(name, options, pack_size, nrt_id));
+
+		int begin_index = 0;
+		for (Size i = 0; i < numList->di_num; ++i)
+		{
+			std::string xml_str =
+				"<ComDI phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\">"
+				"</ComDI>";
+			controller->slavePool().add<codeit::controller::ComDI>().loadXmlStr(xml_str);
+			begin_index++;
+		}
+
+		for (Size i = 0; i < numList->do_num; ++i)
+		{
+			std::string xml_str =
+				"<ComDO phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\">"
+				"</ComDO>";
+			controller->slavePool().add<codeit::controller::ComDO>().loadXmlStr(xml_str);
+			begin_index++;
+		}
+
+		double res[6] = { 0.1,0.2,0.3,0.4,0.5,0.6 };
+		for (Size i = 0; i < numList->ai_num; ++i)
+		{
+			std::string xml_str =
+				"<ComAI phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\" resolution=\"" + std::to_string(res[i]) + "\">"
+				"</ComAI>";
+			controller->slavePool().add<codeit::controller::ComAI>().loadXmlStr(xml_str);
+			begin_index++;
+		}
+		for (Size i = 0; i < numList->ao_num; ++i)
+		{
+			std::string xml_str =
+				"<ComAO phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\" resolution=\"" + std::to_string(res[i]) + "\">"
+				"</ComAO>";
+			controller->slavePool().add<codeit::controller::ComAO>().loadXmlStr(xml_str);
+			begin_index++;
+		}
+
+
+		for (Size i = 0; i < numList->motor_num; ++i)
+		{
+#ifdef WIN32
+			double pos_offset[6]
+			{
+				0,0,0,0,0,0
+			};
+#endif
+#ifdef UNIX
+			double pos_offset[6]
+			{
+				0.0345045068966465,   0.151295566371175,   -0.181133422007823,   0.00569660673541914,   0.0119907348546894,   0.0908806917782888
+			};
+#endif
+			double pos_factor[6]
+			{
+				131072.0 * 129.6 / 2 / PI, -131072.0 * 100 / 2 / PI, 131072.0 * 101 / 2 / PI, 131072.0 * 81.6 / 2 / PI, 131072.0 * 81 / 2 / PI, 131072.0 * 51 / 2 / PI
+			};
+			double max_pos[6]
+			{
+				170.0 / 360 * 2 * PI, 40.0 / 360 * 2 * PI,	150.0 / 360 * 2 * PI, 180.0 / 360 * 2 * PI, 125.0 / 360 * 2 * PI, 360.0 / 360 * 2 * PI
+			};
+			double min_pos[6]
+			{
+				-170.0 / 360 * 2 * PI, -165.0 / 360 * 2 * PI, -125.0 / 360 * 2 * PI, -180.0 / 360 * 2 * PI, -125.0 / 360 * 2 * PI, -360.0 / 360 * 2 * PI
+			};
+			double max_vel[6]
+			{
+				230.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 300.0 / 360 * 2 * PI, 375.0 / 360 * 2 * PI, 600.0 / 360 * 2 * PI
+			};
+			double max_acc[6]
+			{
+				1150.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1500.0 / 360 * 2 * PI, 1875.0 / 360 * 2 * PI, 3000.0 / 360 * 2 * PI
+			};
+
+			std::string xml_str =
+				"<ComMotor phy_id=\"" + std::to_string(begin_index) + "\" "
+				" min_pos=\"" + std::to_string(min_pos[i]) + "\" max_pos=\"" + std::to_string(max_pos[i]) + "\" max_vel=\"" + std::to_string(max_vel[i]) + "\" min_vel=\"" + std::to_string(-max_vel[i]) + "\""
+				" max_acc=\"" + std::to_string(max_acc[i]) + "\" min_acc=\"" + std::to_string(-max_acc[i]) + "\" max_pos_following_error=\"0.1\" max_vel_following_error=\"0.5\""
+				" home_pos=\"0\" pos_factor=\"" + std::to_string(pos_factor[i]) + "\" pos_offset=\"" + std::to_string(pos_offset[i]) + "\">"
+				"</ComMotor>";
+
+			controller->slavePool().add<codeit::controller::ComMotor>().loadXmlStr(xml_str);
+			begin_index++;
+		}
+
+		for (Size i = 0; i < numList->subsys_num; ++i)
+		{
+			std::string xml_str =
+				"<ComSubSystem phy_id=\"" + std::to_string(begin_index) + "\"is_virtual=\"false\">"
+				"</ComSubSystem>";
+			controller->slavePool().add<codeit::controller::ComSubSystem>().loadXmlStr(xml_str);
+			begin_index++;
+		}
+
+		return controller;
+
+	}
+
 	auto createNrtControllerPool()->std::unique_ptr<core::ObjectPool<codeit::controller::NrtController>>
 	{
 		std::unique_ptr<core::ObjectPool<codeit::controller::NrtController>> nrtControllerPool(new core::ObjectPool<codeit::controller::NrtController>);

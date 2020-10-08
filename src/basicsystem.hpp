@@ -24,8 +24,8 @@ namespace codeit::system
 	auto createEcatController()->std::unique_ptr<codeit::controller::Controller>;
     auto createZeroErrEcatController()->std::unique_ptr<codeit::controller::Controller>;
 
-    /*auto createComController(const NumList* num = nullptr, Size nrt_id=0, const std::string& name = "com_controller", UINT  portNo = 3, UINT  baud = CBR_19200, char  parity = 'N', UINT  databits = 8, \
-		UINT  stopsbits = 1, DWORD dwCommEvents = EV_RXCHAR)->std::unique_ptr<codeit::controller::NrtController>;*/
+	auto createComController(const NumList* num = nullptr, const std::string& name = "com_controller", \
+		const core::SerialPort::ComOptions& options = core::SerialPort::defaultComOptions, Size pack_size = 0, Size nrt_id = 0)->std::unique_ptr<codeit::controller::NrtController>;
 	auto createSocketController(const NumList* num = nullptr, std::string name="socket_controller", std::string ip = "", std::string port="", controller::SocketMaster::TYPE type= controller::SocketMaster::TYPE::TCP, Size nrt_id=0)->std::unique_ptr<codeit::controller::NrtController>;
 	auto createNrtControllerPool()->std::unique_ptr<core::ObjectPool<codeit::controller::NrtController>>;
 	//*********************************************************//////
