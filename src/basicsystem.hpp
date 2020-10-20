@@ -8,6 +8,7 @@ using namespace codeit::model;
 
 namespace codeit::system
 {
+	auto updateStateRt(codeit::core::Msg& msg)->void;
 	class NumList
 	{
 	public:
@@ -31,38 +32,12 @@ namespace codeit::system
 	//*********************************************************//////
 
 	//*************************创建模型************************//////
-	auto createPumaModel(std::string name="model")->std::unique_ptr<codeit::model::Model>;
-	auto createScaraModel(std::string name="model")->std::unique_ptr<codeit::model::Model>;
-	auto createUrModel(std::string name="model")->std::unique_ptr<codeit::model::Model>;
-	auto createIOModel(const NumList* num = nullptr, std::string name="model")->std::unique_ptr<codeit::model::IOModel>;
-	
+	auto createIOModel(const NumList* num = nullptr, std::string name = "model")->std::unique_ptr<codeit::model::IOModel>;
 	auto createModelPool()->std::unique_ptr<core::ObjectPool<codeit::model::Model>>;
 	auto createIOModelPool()->std::unique_ptr<core::ObjectPool<codeit::model::IOModel>>;
-	////*********************************************************//////
 
-
-
-	//*************************创建异常信息池************************//////
 	auto createErrorInfoPool()->std::unique_ptr<core::ObjectPool<codeit::system::ErrorInfo>>;
-	////*********************************************************//////
-
-
-
-	//*************************创建指令集************************//////
 	auto createFuncRoot()->std::unique_ptr<codeit::function::FuncRoot>;
-	////*********************************************************//////
-
-
-	//*************************创建临时异常信息池************************//////
-	auto tmpErrorInfoPool(core::ObjectPool<codeit::system::ErrorInfo>& infoPool, std::map<std::int32_t, std::string>& errMap)->void;
-	////*********************************************************//////
-
-
-
-	//*************************创建临时指令集************************//////
-	auto tmpFuncRoot(codeit::function::FuncRoot& cmdRoot)->void;
-	////*********************************************************//////
-
 	auto createUserDataType(core::Calculator& cal)->void;
 	auto createDefaultData(codeit::model::Model& model)->void;
 }

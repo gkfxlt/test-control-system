@@ -12,7 +12,7 @@ using namespace codeit::system;
 int main()
 {
 	auto& cs = codeit::system::ControlSystem::instance();
-    cs.resetController(createEcatController().release());
+    cs.resetController(createVrepController().release());
 	cs.resetNrtControllerPool(createNrtControllerPool().release());
 	cs.resetSensorRoot(new codeit::sensor::SensorRoot);
 	cs.resetModelPool(createModelPool().release());
