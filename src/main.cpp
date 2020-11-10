@@ -12,7 +12,12 @@ using namespace codeit::system;
 int main()
 {
 	auto& cs = codeit::system::ControlSystem::instance();
+#ifdef WIN32
     cs.resetController(createVrepController().release());
+#endif
+#ifdef UNIX
+    cs.resetController(createEcatController().release());
+#endif
 	cs.resetNrtControllerPool(createNrtControllerPool().release());
 	cs.resetModelPool(createModelPool().release());
 	cs.resetIOModelPool(createIOModelPool().release());
@@ -47,7 +52,7 @@ int main()
 
 	auto& cal = cs.model().calculator();
 	createUserDataType(cal);
-	cs.start();
+    cs.start();
 
 	cs.setErrorinfoVer(0);
 #ifdef WIN32
