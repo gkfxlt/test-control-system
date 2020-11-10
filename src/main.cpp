@@ -14,7 +14,6 @@ int main()
 	auto& cs = codeit::system::ControlSystem::instance();
     cs.resetController(createVrepController().release());
 	cs.resetNrtControllerPool(createNrtControllerPool().release());
-	cs.resetSensorRoot(new codeit::sensor::SensorRoot);
 	cs.resetModelPool(createModelPool().release());
 	cs.resetIOModelPool(createIOModelPool().release());
 	cs.resetFuncRoot(createFuncRoot().release());
@@ -30,6 +29,10 @@ int main()
     codeit::core::SerialPort::ComOptions options = { 1, CBR_9600, 'N',8,1,EV_RXCHAR };
     cs.interfacePool().add<codeit::system::ComInterface>("COM", options);
 #endif
+
+	cs.sensorPool().add<codeit::sensor::SensorTCP>("sensor", "7001", codeit::core::Socket::TCP, sizeof(codeit::sensor::DemoData));
+
+
 	cs.saveXmlFile(std::string("kaanh.xml"));
 	cs.model().saveXmlFile(std::string("model.xml"));
 	cs.model().pointPool().saveXmlFile(std::string("data.xml"));
